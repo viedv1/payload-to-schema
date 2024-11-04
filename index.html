@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON Schema Generator</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="schema_generator.js"></script>
+</head>
+<body>
+  <main class="outer-container">
+    <!-- First Column: JSON Input -->
+    <section class="column">
+      <textarea id="jsonPayload" placeholder="Paste JSON"></textarea>
+      <button id="generateFields">Generate JSON schema</button>
+    </section>
+
+    <!-- Second Column: Fields List -->
+    <section class="column">
+      <div id="fields" class="scrollable"></div>
+    </section>
+
+    <!-- Third Column: Generated JSON Schema -->
+    <section class="column">
+      <textarea id="jsonSchema" readonly placeholder="Generated JSON schema"></textarea>
+    </section>
+  </main>
+</body>
+</html>
