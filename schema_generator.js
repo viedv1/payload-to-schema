@@ -44,32 +44,24 @@ document.addEventListener("DOMContentLoaded", () => {
       const isObject = typeof obj[key] === "object" && !Array.isArray(obj[key]);
 
       const fieldRow = document.createElement("div");
-      fieldRow.style.display = "flex";
-      fieldRow.style.alignItems = "center";
-      fieldRow.style.marginLeft = `${level * 20}px`;
-      fieldRow.style.marginBottom = "2px";
+      fieldRow.classList.add("field-row");
 
       // Expand/collapse toggle for nested objects
       if (isObject && Object.keys(obj[key]).length > 0) {
         const toggleButton = document.createElement("button");
-        toggleButton.textContent = "▶";
+        toggleButton.textContent = "🡢";
         toggleButton.classList.add("toggle-button");
-        toggleButton.style.marginRight = "8px";
-        toggleButton.style.border = "none";
-        toggleButton.style.background = "none";
-        toggleButton.style.cursor = "pointer";
-        toggleButton.style.fontSize = "12px";
 
         toggleButton.addEventListener("click", () => {
           const nestedGroup = fieldRow.nextSibling;
           nestedGroup.style.display = nestedGroup.style.display === "none" ? "block" : "none";
-          toggleButton.textContent = nestedGroup.style.display === "none" ? "▶" : "▼";
+          toggleButton.textContent = nestedGroup.style.display === "none" ? "🡢" : "🡣";
         });
 
         fieldRow.appendChild(toggleButton);
       } else {
         const spacer = document.createElement("span");
-        spacer.style.width = "16px";
+        spacer.classList.add("spacer");
         fieldRow.appendChild(spacer);
       }
 
@@ -86,9 +78,16 @@ document.addEventListener("DOMContentLoaded", () => {
         const formatSelect = createFormatDropdown(fieldPath, "none"); // Default format as none
         const enumInput = createEnumInput(fieldPath);
 
+        typeSelect.setAttribute("onchange", "adjustWidth(this)");
+        formatSelect.setAttribute("onchange", "adjustWidth(this)");
+
         fieldRow.appendChild(typeSelect);
         fieldRow.appendChild(formatSelect);
         fieldRow.appendChild(enumInput);
+
+        // Adjust width initially
+        adjustWidth(typeSelect);
+        adjustWidth(formatSelect);
       } else {
         // Automatically set the type to "object" for fields with nested content
         fieldTypes[fieldPath] = "object";
@@ -111,7 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.dataset.path = path;
-    checkbox.style.marginRight = "10px";
+    checkbox.classList.add("required-checkbox");
     checkbox.addEventListener("change", (event) => {
       if (event.target.checked) {
         requiredFields.add(path);
@@ -131,6 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function createTypeDropdown(path, defaultType = "string") {
     const typeSelect = document.createElement("select");
+    typeSelect.setAttribute("onchange", "adjustWidth(this)");
     schemaTypes.forEach(type => {
       const option = document.createElement("option");
       option.value = type;
@@ -155,6 +155,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function createFormatDropdown(path, defaultFormat = "none") {
     const formatSelect = document.createElement("select");
+    formatSelect.setAttribute("onchange", "adjustWidth(this)");
     formatSelect.dataset.path = `${path}-format`;
 
     formatSelect.addEventListener("change", (event) => {
@@ -191,10 +192,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const enumInput = document.createElement("input");
     enumInput.type = "text";
     enumInput.placeholder = "enum";
-    enumInput.style.marginLeft = "8px";
-    enumInput.style.padding = "2px 4px"; // Match dropdown padding
-    enumInput.style.border = "1px solid #ccc"; // Match dropdown border style
-    enumInput.style.borderRadius = "4px"; // Match dropdown border radius
+    enumInput.classList.add("enum-input");
     enumInput.dataset.path = `${path}-enum`;
 
     enumInput.addEventListener("input", (event) => {
@@ -261,4 +259,31 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
   }
+
+  // Initialize width on load
+  const dropdowns = document.querySelectorAll("select");
+  dropdowns.forEach(dropdown => adjustWidth(dropdown));
+});
+
+function adjustWidth(select) {
+  if (select.options.length === 0 || select.selectedIndex === -1) {
+    return;
+  }
+
+  const option = select.options[select.selectedIndex];
+  const temp = document.createElement("span");
+  temp.style.font = window.getComputedStyle(select).font;
+  temp.style.visibility = "hidden";
+  temp.style.whiteSpace = "nowrap";
+  temp.innerText = option.text;
+  document.body.appendChild(temp);
+
+  select.style.width = `${temp.offsetWidth + 20}px`; // Add some padding
+  document.body.removeChild(temp);
+}
+
+// Initialize width on load
+document.addEventListener("DOMContentLoaded", () => {
+  const dropdowns = document.querySelectorAll("select");
+  dropdowns.forEach(dropdown => adjustWidth(dropdown));
 });
